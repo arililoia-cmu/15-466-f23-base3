@@ -399,6 +399,7 @@ void mix_audio(void *, Uint8 *buffer_, int len) {
 			buffer[i].r += pan.r * playing_sample.data[playing_sample.i];
 
 			//update position in sample:
+			// this is what you mess with 
 			playing_sample.i += 1;
 			if (playing_sample.i == playing_sample.data.size()) {
 				if (playing_sample.loop) {

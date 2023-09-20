@@ -29,6 +29,9 @@
 #ifdef _WIN32
 extern "C" { uint32_t GetACP(); }
 #endif
+// use extern keyword 
+SDL_Window *window = nullptr;
+
 int main(int argc, char **argv) {
 #ifdef _WIN32
 	{ //when compiled on windows, check that code page is forced to utf-8 (makes file loading/saving work right):
@@ -65,7 +68,8 @@ int main(int argc, char **argv) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 	//create window:
-	SDL_Window *window = SDL_CreateWindow(
+	// window is in gloval scope
+	window = SDL_CreateWindow(
 		"gp23 game3: require sound", //TODO: remember to set a title for your game!
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 		1280, 720, //TODO: modify window size if you'd like

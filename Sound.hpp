@@ -143,6 +143,9 @@ extern Ramp< float > volume;
 //the audio callback doesn't run between Sound::lock() and Sound::unlock()
 // the set_*/stop/play/... functions already use these helpers, so you shouldn't need
 // to call them unless your code is modifying values directly:
+
+// double buffered - you have 2 samples playing
+// code updates one, sets the 2 to crossfade quckly
 void lock();
 void unlock();
 

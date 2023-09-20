@@ -109,16 +109,26 @@ const Mesh &MeshBuffer::lookup(std::string const &name) const {
 GLuint MeshBuffer::make_vao_for_program(GLuint program) const {
 	//create a new vertex array object:
 	GLuint vao = 0;
+	//generate vertex array object names(#array object names to generate, array in which the object names are stored)
 	glGenVertexArrays(1, &vao);
+	//bind vertex array object(name of vao to bind)
 	glBindVertexArray(vao);
 
 	//Try to bind all attributes in this buffer:
 	std::set< GLuint > bound;
+	//bind a named buffer object(target, buffer)
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	// are the attribs misisng or empty?
 	auto bind_attribute = [&](char const *name, MeshBuffer::Attrib const &attrib) {
-		if (attrib.size == 0) return; //don't bind empty attribs
+		if (attrib.size == 0){
+			std::cout << "attribs empty" << std::endl;
+			return;
+		} 
 		GLint location = glGetAttribLocation(program, name);
-		if (location == -1) return; //can't bind missing attribs
+		if (location == -1){
+			std::cout << "attribs missing" << std::endl;
+			return; //can't bind missing attribs
+		} 
 		glVertexAttribPointer(location, attrib.size, attrib.type, attrib.normalized, attrib.stride, (GLbyte *)0 + attrib.offset);
 		glEnableVertexAttribArray(location);
 		bound.insert(location);
