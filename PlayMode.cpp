@@ -138,6 +138,14 @@ bool PlayMode::check_if_inside(glm::uvec2 check, glm::uvec2 point1,
 		return false;
 }
 
+bool PlayMode::is_left_side_of_knob(glm::uvec2 knob_coords, glm::uvec2 mouse_position){
+	if (mouse_position.x >= knob_coords.x){
+		return false;
+	}else{
+		return true;
+	}
+}
+
 
 // parts of this method taken from my base 2 code:
 // https://github.com/arililoia-cmu/15-466-f23-base2/blob/8697e4fed38995ac9b5949fd30c0f75dabe02444/PlayMode.cpp
@@ -268,7 +276,65 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	} else if (evt.type == SDL_MOUSEMOTION) {
 
 		if (clicked_inside_knob){
-			std::cout << "aklsjdfh" << std::endl;
+
+			// note - i know it is inefficient to repeat this code in multiple places
+			// my bad
+
+			int mouse_x, mouse_y;
+			SDL_GetMouseState(&mouse_x, &mouse_y);
+			glm::uvec2 mouse_position(mouse_x, mouse_y);
+
+			glm::vec2 knob_coords = object_to_window_coordinate(knob);
+
+			bool is_left_side = is_left_side_of_knob(knob_coords, mouse_position);
+			// if (is_left_side_of_knob(knob_coords, mouse_position)){
+			// 	std::cout << "clicked left side" << std::endl;
+			// }else{
+			// 	std::cout << "clicked right side" << std::endl;
+			// }
+			
+			glm::vec2 motion = glm::vec2(
+					evt.motion.xrel / float(window_size.y),
+					-evt.motion.yrel / float(window_size.y)
+				);
+		
+			if (motion.y > 0){
+				std::cout << "pulled up" << std::endl;
+			}
+			if (motion.y < 0){
+				std::cout << "pulled down" << std::endl;
+			}
+
+			// if left side of knob and pulled down
+			// if right side of knob and pulled up
+			// rotate left
+
+			// std::cout << "motion.y: " << motion.y * 100 << std::endl;
+			wobble += motion.y;
+			// std::cout << "wobble" << wobble << std::endl;
+			std::cout << "motion.y * 20.0 = " << motion.y * 20.0 << std::endl;
+			if ((is_left_side && motion.y < 0) || (!is_left_side && (motion.y > 0))){
+
+				knob->rotation = knob_base_rotation * glm::angleAxis(
+					// glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
+					glm::radians(wobble * 10.0f * float(M_PI)),
+					glm::vec3(0.0f, 0.0f, 1.0f)
+				);
+
+			}
+			// if left side of knob and pulled up
+			// if right side of knob and pulled down
+			// rotate right
+			else if ((is_left_side && motion.y > 0) || (!is_left_side && (motion.y < 0))){
+				knob->rotation = knob_base_rotation * glm::angleAxis(
+					// glm::radians(5.0f * std::sin(wobble * 2.0f * float(M_PI))),
+					glm::radians(wobble * 10.0f * float(M_PI)),
+					glm::vec3(0.0f, 0.0f, 1.0f)
+				);
+			}
+
+			
+
 
 		}else{
 			if (SDL_GetRelativeMouseMode() == SDL_TRUE) {

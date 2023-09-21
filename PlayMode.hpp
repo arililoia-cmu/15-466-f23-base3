@@ -24,6 +24,7 @@ struct PlayMode : Mode {
 	glm::vec2 object_position_to_window_position(glm::vec3 object_position);
 	bool check_if_inside(glm::uvec2 check, glm::uvec2 point1, 
 		glm::uvec2 point2, glm::uvec2 point3, glm::uvec2 point4);
+	bool is_left_side_of_knob(glm::uvec2 knob_coords, glm::uvec2 mouse_position);
 
 	//----- game state -----
 
