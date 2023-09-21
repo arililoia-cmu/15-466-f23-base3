@@ -277,9 +277,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 		if (clicked_inside_knob){
 
-			// note - i know it is inefficient to repeat this code in multiple places
-			// my bad
-
 			int mouse_x, mouse_y;
 			SDL_GetMouseState(&mouse_x, &mouse_y);
 			glm::uvec2 mouse_position(mouse_x, mouse_y);
@@ -287,23 +284,13 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			glm::vec2 knob_coords = object_to_window_coordinate(knob);
 
 			bool is_left_side = is_left_side_of_knob(knob_coords, mouse_position);
-			// if (is_left_side_of_knob(knob_coords, mouse_position)){
-			// 	std::cout << "clicked left side" << std::endl;
-			// }else{
-			// 	std::cout << "clicked right side" << std::endl;
-			// }
 			
 			glm::vec2 motion = glm::vec2(
 					evt.motion.xrel / float(window_size.y),
 					-evt.motion.yrel / float(window_size.y)
 				);
 		
-			if (motion.y > 0){
-				std::cout << "pulled up" << std::endl;
-			}
-			if (motion.y < 0){
-				std::cout << "pulled down" << std::endl;
-			}
+\
 
 			// if left side of knob and pulled down
 			// if right side of knob and pulled up
@@ -332,9 +319,6 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 					glm::vec3(0.0f, 0.0f, 1.0f)
 				);
 			}
-
-			
-
 
 		}else{
 			if (SDL_GetRelativeMouseMode() == SDL_TRUE) {
