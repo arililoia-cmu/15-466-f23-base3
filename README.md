@@ -13,6 +13,6 @@ Screen Shot:
 ![Screen Shot](screenshot.png)
 
 How To Play:
-Click the knob and move around it (use WASD to move in space, escape to lock the camera and be able to click around the screen) to the match the angle at the bottom of the screen. When the angle is matched, you get a point. Play as long as you want
+Click the dial on the knob (click and drag the rectangular bar on the dial) and move around it (use WASD to move in space, escape to lock the camera and be able to click around the screen) to the match the angle at the bottom of the screen. When the angle is matched, you get a point. Play as long as you want
 
 This game was built with [NEST](NEST.md).
