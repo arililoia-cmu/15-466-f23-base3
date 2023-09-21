@@ -1,15 +1,14 @@
-# (TODO: your game's title)
+# Angle Matcher 2: Positive Reinforcement
 
-Author: (TODO: your name)
+Author: Ari Liloia
 
-Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
+Design: This game is a continuation of the "angle matcher" game I submitted for game 2, but in this version there is background music, as well as a pleasant sound that plays when the angle is matched and an ugly one when it is not.
 
 Screen Shot:
 
 ![Screen Shot](screenshot.png)
 
 How To Play:
-
-(TODO: describe the controls and (if needed) goals/strategy.)
+Turn the knob the match the angle at the bottom of the screen.
 
 This game was built with [NEST](NEST.md).

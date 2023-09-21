@@ -7,7 +7,7 @@
 #include "Load.hpp"
 #include "gl_errors.hpp"
 #include "data_path.hpp"
-
+#include <sstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <cstdlib>
 
@@ -17,6 +17,17 @@ extern SDL_Window *window;
 extern int test;
 
 
+// taken from my game 2 code:
+// https://github.com/arililoia-cmu/15-466-f23-base2/blob/62b8cd23a3ee587fd9900b11712eb2abe8b96bd5/PlayMode.cpp
+int PlayMode::generate_random_angle(){
+	// inspired by u/Walter's answer:
+	// https://stackoverflow.com/questions/5008804/generating-a-random-integer-from-a-range
+	std::random_device rd;     // Only used once to initialise (seed) engine
+	std::mt19937 rng(rd());    // Random-number engine used (Mersenne-Twister in this case)
+	std::uniform_int_distribution<int> uni(0,360); // Guaranteed unbiased
+	auto random_integer = uni(rng);
+	return random_integer;
+}
 
 GLuint hexapod_meshes_for_lit_color_texture_program = 0;
 Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
@@ -53,14 +64,15 @@ Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 // how to calculate window space to world space transform?
 
 
-Load< Sound::Sample > dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
-	std::vector< float > editable_data(50000);
-	for (float& value : editable_data) {
-        value = 0;
-    }
-	return new Sound::Sample(editable_data);
+// Load< Sound::Sample > dusty_floor_sample(LoadTagDefault, []() -> Sound::Sample const * {
+// 	// std::vector< float > editable_data(50000);
+// 	// for (float& value : editable_data) {
+//     //     value = 0;
+//     // }
+// 	// return new Sound::Sample(editable_data);
 
-});
+// 	return new Sound::Sample(data_path("example.wav"));
+// });
 
 
 Sound::Sample const * PlayMode::generate_audio(){
@@ -175,30 +187,12 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	bl_wpos = bottom_left->position;
 	br_wpos = bottom_right->position;
 
-	// std::cout << "knob_position.x,y,z: " << knob_position.x << " " << knob_position.y << " " << knob_position.z << std::endl; 
-	// hip_base_rotation = hip->rotation;
-	// upper_leg_base_rotation = upper_leg->rotation;
-	// lower_leg_base_rotation = lower_leg->rotation;
 
-	//get pointer to camera for convenience:
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
-	// for (auto &transform : scene.transforms) {
-	// 	if (transform.name == "Hip.FL") hip = &transform;
-	// 	else if (transform.name == "UpperLeg.FL") upper_leg = &transform;
-	// 	else if (transform.name == "LowerLeg.FL") lower_leg = &transform;
-	// }
-	// if (hip == nullptr) throw std::runtime_error("Hip not found.");
-	// if (upper_leg == nullptr) throw std::runtime_error("Upper leg not found.");
-	// if (lower_leg == nullptr) throw std::runtime_error("Lower leg not found.");
 
-	// hip_base_rotation = hip->rotation;
-	// upper_leg_base_rotation = upper_leg->rotation;
-	// lower_leg_base_rotation = lower_leg->rotation;
 
-	// //get pointer to camera for convenience:
-	// if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
-	// camera = &scene.cameras.front();
+	// leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
 
 	
 	
@@ -452,6 +446,17 @@ void PlayMode::update(float elapsed) {
 	right.downs = 0;
 	up.downs = 0;
 	down.downs = 0;
+
+
+	float angle = 2.0f * acos(knob->rotation.w); // Calculate the angle in radians
+    // glm::vec3 axis = glm::normalize(glm::vec3(quaternion)); // Normalize the axis
+	current_angle = (int)(glm::degrees(angle));
+	
+
+	if ((current_angle == goal_angle) && !left.pressed && !right.pressed){
+		points++;
+		goal_angle = generate_random_angle();
+	}
 }
 
 void PlayMode::draw(glm::uvec2 const &drawable_size) {
@@ -508,15 +513,27 @@ void PlayMode::draw(glm::uvec2 const &drawable_size) {
 		// std::cout << "(" << ax << ", " << ay << ", " << az << ") -> (" << bx << ", " << by << ", " << bz << ")" << std::endl;
 
 		constexpr float H = 0.09f;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
+
+
+	// taken from my game 2 code:
+	// https://github.com/arililoia-cmu/15-466-f23-base2/blob/62b8cd23a3ee587fd9900b11712eb2abe8b96bd5/PlayMode.cpp
+		std::ostringstream o_ca;	
+		o_ca << current_angle;
+		std::string str_ca = o_ca.str();
+
+		std::ostringstream o_ga;	
+		o_ga << goal_angle;
+		std::string str_ga = o_ga.str();
+
+		std::ostringstream o_p;	
+		o_p << points;
+		std::string str_p = o_p.str();
+
+		lines.draw_text(str_p + ": Current Angle = " + str_ca + ", Goal Angle = " + str_ga,
 			glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+			glm::vec3(H*2, 0.0f, 0.0f), glm::vec3(0.0f, H*2, 0.0f),
+
 			glm::u8vec4(0x00, 0x00, 0x00, 0x00));
-		float ofs = 2.0f / drawable_size.y;
-		lines.draw_text("Mouse motion rotates camera; WASD moves; escape ungrabs mouse",
-			glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
-			glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
-			glm::u8vec4(0xff, 0xff, 0xff, 0x00));
 	}
 	GL_ERRORS();
 }

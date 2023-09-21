@@ -19,6 +19,7 @@ struct PlayMode : Mode {
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
+	int generate_random_angle();
 	Sound::Sample const * generate_audio();
 	glm::vec2 object_to_window_coordinate(Scene::Transform *object);
 	glm::vec2 object_position_to_window_position(glm::vec3 object_position);
@@ -44,6 +45,11 @@ struct PlayMode : Mode {
 	int wf_middle = 30;
 	int wf_amplitude = 30;
 	int wf_width = 200;
+
+
+	int points = 0;
+	int current_angle = 0;
+	int goal_angle = 100;
 
 	Scene::Transform *knob = nullptr;
 
@@ -72,9 +78,10 @@ struct PlayMode : Mode {
 	glm::vec2 bl_pos;
 	glm::vec2 br_pos;
 
-	int goal_angle = 100;
-	int current_angle;
-	int points = 0;
+
+
+
+	
 
 	bool clicked_inside_knob = false;
 
