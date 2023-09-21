@@ -20,7 +20,10 @@ struct PlayMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 	Sound::Sample const * generate_audio();
+	glm::vec2 object_to_window_coordinate(Scene::Transform *object);
 	glm::vec2 object_position_to_window_position(glm::vec3 object_position);
+	bool check_if_inside(glm::uvec2 check, glm::uvec2 point1, 
+		glm::uvec2 point2, glm::uvec2 point3, glm::uvec2 point4);
 
 	//----- game state -----
 
@@ -40,6 +43,40 @@ struct PlayMode : Mode {
 	int wf_middle = 30;
 	int wf_amplitude = 30;
 	int wf_width = 200;
+
+	Scene::Transform *knob = nullptr;
+
+	Scene::Transform *top_left = nullptr;
+	Scene::Transform *top_right = nullptr;
+	Scene::Transform *bottom_left = nullptr;
+	Scene::Transform *bottom_right = nullptr;
+
+
+	// Scene::Drawable *top_left_drawable = nullptr;
+	// Scene::Drawable *top_right_drawable = nullptr;
+	// Scene::Drawable *bottom_left_drawable = nullptr;
+	// Scene::Drawable *bottom_right_drawable = nullptr;
+
+
+	glm::quat knob_base_rotation;
+	glm::vec3 knob_position;
+
+	glm::vec3 tl_wpos;
+	glm::vec3 tr_wpos;
+	glm::vec3 bl_wpos;
+	glm::vec3 br_wpos;
+
+	glm::vec2 tl_pos;
+	glm::vec2 tr_pos;
+	glm::vec2 bl_pos;
+	glm::vec2 br_pos;
+
+	int goal_angle = 100;
+	int current_angle;
+	int points = 0;
+
+	bool clicked_inside_knob = false;
+
 
 
 
