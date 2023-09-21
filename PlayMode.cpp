@@ -36,6 +36,18 @@ Load< MeshBuffer > hexapod_meshes(LoadTagDefault, []() -> MeshBuffer const * {
 	return ret;
 });
 
+Load< Sound::Sample > good_noise(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("good_noise.wav"));
+});
+
+Load< Sound::Sample > background_music(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("background_music.wav"));
+});
+
+Load< Sound::Sample > bad_noise(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("bad_noise.wav"));
+});
+
 Load< Scene > hexapod_scene(LoadTagDefault, []() -> Scene const * {
 	return new Scene(data_path("knob.scene"), [&](Scene &scene, Scene::Transform *transform, std::string const &mesh_name){
 		Mesh const &mesh = hexapod_meshes->lookup(mesh_name);
@@ -97,9 +109,6 @@ Sound::Sample const * PlayMode::generate_audio(){
 // 	for (float& value : editable_data) {
 //         value = dis(gen);
 //     }
-
-// 	return new Sound::Sample(editable_data);
-// });
 
 
 // this method taken from my base 2 code:
@@ -191,9 +200,10 @@ PlayMode::PlayMode() : scene(*hexapod_scene) {
 	if (scene.cameras.size() != 1) throw std::runtime_error("Expecting scene to have exactly one camera, but it has " + std::to_string(scene.cameras.size()));
 	camera = &scene.cameras.front();
 
-
+	background_loop = Sound::loop(*background_music, 1.0f, 0.0f);
 	// leg_tip_loop = Sound::loop_3D(*dusty_floor_sample, 1.0f, get_leg_tip_position(), 10.0f);
 
+	// bad_noise_sound = Sound::play(*bad_noise, 1.0f, 0.0f);
 	
 	
 
@@ -293,7 +303,7 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			// std::cout << "motion.y: " << motion.y * 100 << std::endl;
 			wobble += motion.y;
 			// std::cout << "wobble" << wobble << std::endl;
-			std::cout << "motion.y * 20.0 = " << motion.y * 20.0 << std::endl;
+			// std::cout << "motion.y * 20.0 = " << motion.y * 20.0 << std::endl;
 			if ((is_left_side && motion.y < 0) || (!is_left_side && (motion.y > 0))){
 
 				knob->rotation = knob_base_rotation * glm::angleAxis(
@@ -339,21 +349,23 @@ bool PlayMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 void PlayMode::update(float elapsed) {
 
-	if (clicked_inside_knob){
-		std::cout << "T" << std::endl;
-	}else{
-		std::cout << "F" << std::endl;
-	}
+	// if (clicked_inside_knob){
+	// 	std::cout << "T" << std::endl;
+	// }else{
+	// 	std::cout << "F" << std::endl;
+	// }
 	// void set_volume(float new_volume, float ramp = 1.0f / 60.0f);
 	// std::cout << wobble << std::endl;
 
 	//slowly rotates through [0,1):
-	// wobble += elapsed / 10.0f;
-	// if (wobble >= 0.5){
-
-	// 	leg_tip_loop = Sound::play(*generate_audio(), 1.0f, 0.0f);
-	// 	wobble = 0;
-	// }
+	playcounter += 0.01;
+	// std::cout << "playcounter: " << playcounter << std::endl;
+	if (playcounter >= abs((current_angle - goal_angle)*0.01)){
+		// leg_tip_loop = Sound::play(bad_noise, 1.0f, 0.0f);
+		// playcounter = 0;
+		bad_noise_sound = Sound::play(*bad_noise, 1.0f, 0.0f);
+		playcounter = 0;
+	}
 	// std::cout << wobble << std::endl;
 	// // wobble -= std::floor(wobble);
 
@@ -454,8 +466,10 @@ void PlayMode::update(float elapsed) {
 	
 
 	if ((current_angle == goal_angle) && !left.pressed && !right.pressed){
+		// Sound::stop_all_samples();
 		points++;
 		goal_angle = generate_random_angle();
+		good_noise_sound = Sound::play(*good_noise, 1.0f, 0.0f);
 	}
 }
 

@@ -28,7 +28,14 @@ void load_wav(std::string const &filename, std::vector< float > *data_) {
 		std::cout << "WAV file '" + filename + "' didn't load as " + std::to_string(AUDIO_RATE) + " Hz, float32, mono; converting." << std::endl;
 		cvt.len = audio_len;
 		cvt.buf = (Uint8 *)SDL_malloc(cvt.len * cvt.len_mult);
+		
+
+
 		SDL_memcpy(cvt.buf, audio_buf, audio_len);
+
+	  
+
+		std::cout << "audio_buf.size() " << audio_buf[0] << std::endl;
 		SDL_ConvertAudio(&cvt);
 		int final_size = cvt.len_cvt;
 		assert(final_size >= 0 && final_size <= cvt.len * cvt.len_mult && "Converted audio should fit in buffer.");

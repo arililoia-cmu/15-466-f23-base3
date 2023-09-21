@@ -78,7 +78,7 @@ struct PlayMode : Mode {
 	glm::vec2 bl_pos;
 	glm::vec2 br_pos;
 
-
+	float playcounter = 0.0f;
 
 
 	
@@ -110,7 +110,9 @@ struct PlayMode : Mode {
 	glm::vec3 get_leg_tip_position();
 
 	//music coming from the tip of the leg (as a demonstration):
-	std::shared_ptr< Sound::PlayingSample > leg_tip_loop;
+	std::shared_ptr< Sound::PlayingSample > background_loop;
+	std::shared_ptr< Sound::PlayingSample > good_noise_sound;
+	std::shared_ptr< Sound::PlayingSample > bad_noise_sound;
 	
 	//camera:
 	Scene::Camera *camera = nullptr;
